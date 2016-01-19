@@ -5,9 +5,10 @@
 /* eslint hammerhead/proto-methods: 2 */
 
 var ServiceCommands = {
-    getUploadedFiles: 'hammerhead|command|get-uploaded-files',
-    setCookie:        'hammerhead|command|set-cookie',
-    uploadFiles:      'hammerhead|command|upload-files'
+    getUploadedFiles:    'hammerhead|command|get-uploaded-files',
+    setCookie:           'hammerhead|command|set-cookie',
+    uploadFiles:         'hammerhead|command|upload-files',
+    getIframeTaskScript: 'hammerhead|command|get-iframe-task-script'
 };
 
 export default ServiceCommands;

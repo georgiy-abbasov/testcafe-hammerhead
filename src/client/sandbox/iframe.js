@@ -1,7 +1,9 @@
+import COMMAND from '../../session/command';
 import INTERNAL_PROPS from '../../processing/dom/internal-properties';
 import SandboxBase from './base';
 import settings from '../settings';
 import { isShadowUIElement, isCrossDomainIframe, isElementInDocument } from '../utils/dom';
+import { syncServiceMsg } from '../transport';
 import { isFirefox, isWebKit } from '../utils/browser';
 import { isSupportedProtocol } from '../utils/url';
 import { isIframeWithoutSrc } from '../utils/dom';
@@ -9,14 +11,12 @@ import { isIframeWithoutSrc } from '../utils/dom';
 const IFRAME_WINDOW_INITED = 'hammerhead|iframe-window-inited';
 
 export default class IframeSandbox extends SandboxBase {
-    constructor (nodeMutation, cookieSandbox) {
+    constructor (nodeMutation) {
         super();
 
         this.IFRAME_READY_TO_INIT_EVENT          = 'hammerhead|event|iframe-ready-to-init';
         this.IFRAME_READY_TO_INIT_INTERNAL_EVENT = 'hammerhead|event|iframe-ready-to-init-internal';
         this.IFRAME_DOCUMENT_CREATED_EVENT       = 'hammerhead|event|iframe-document-created';
-
-        this.cookieSandbox = cookieSandbox;
 
         this.on(this.IFRAME_READY_TO_INIT_EVENT, this.iframeReadyToInitHandler);
         nodeMutation.on(nodeMutation.IFRAME_ADDED_TO_DOM_EVENT, e => this.iframeAddedToDom(e.iframe));
@@ -68,13 +68,15 @@ export default class IframeSandbox extends SandboxBase {
     }
 
     iframeReadyToInitHandler (e) {
-        var taskScriptTemplate = settings.get().iframeWithoutSrcTaskTemplate;
-        var taskScript         = taskScriptTemplate
-            .replace('{{{cookie}}}', this.cookieSandbox.getCookie())
-            .replace('{{{referer}}}', settings.get().referer || this.window.location.toString())
-            .replace('{{{iframeWithoutSrcTaskTemplate}}}', taskScriptTemplate.replace(/"/g, '\\"'));
+        // NOTE: Get and evaluate an iframe task script. The evaluation must be synchronous.
+        var msg = {
+            cmd:     COMMAND.getIframeTaskScript,
+            referer: settings.get().referer || this.window.location.toString()
+        };
 
-        e.iframe.contentWindow.eval.apply(e.iframe.contentWindow, [taskScript]);
+        syncServiceMsg(msg, iframeTaskScript => {
+            e.iframe.contentWindow.eval.apply(e.iframe.contentWindow, [iframeTaskScript]);
+        });
     }
 
     iframeAddedToDom (el) {

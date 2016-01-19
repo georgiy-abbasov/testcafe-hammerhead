@@ -11,9 +11,8 @@
 
     hammerhead.get('./utils/destination-location').forceLocation('http://localhost/sessionId/https://example.com');
     hammerhead.start({
-        crossDomainProxyPort:         2000,
-        serviceMsgUrl:                '/service-msg/100',
-        iframeWithoutSrcTaskTemplate: window.top.getIframeTaskScript('', '/service-msg/100', 'http://localhost/sessionId/https://example.com')
+        crossDomainProxyPort: 2000,
+        serviceMsgUrl: '/service-msg/100'
     });
     hammerhead.shadowUI.getRoot();
 </script>
