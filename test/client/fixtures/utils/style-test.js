@@ -69,6 +69,23 @@ test('getScrollLeft, getScrollTop', function () {
     strictEqual(styleUtils.getScrollTop(innerDiv), $innerDiv.scrollTop());
 
     div.parentNode.removeChild(div);
+
+    div = document.createElement('div');
+
+    div.style.position = 'absolute';
+    div.style.left     = '2000px';
+    div.style.top      = '2000px';
+    div.style.height   = '100px';
+    div.style.width    = '100px';
+
+    document.body.appendChild(div);
+
+    window.scrollTo(200, 200);
+
+    strictEqual(styleUtils.getScrollLeft(document.documentElement), window.scrollX);
+    strictEqual(styleUtils.getScrollTop(document.documentElement), window.scrollY);
+
+    div.parentNode.removeChild(div);
 });
 
 test('setScrollLeft, setScrollTop', function () {
@@ -214,7 +231,7 @@ test('getSelectElementSize', function () {
     strictEqual(size, 1);
 
     select.setAttribute('size', 4);
-    size       = styleUtils.getSelectElementSize(select);
+    size = styleUtils.getSelectElementSize(select);
 
     if (browserUtils.isSafari && browserUtils.hasTouchEvents || browserUtils.isAndroid)
         strictEqual(size, 1);
